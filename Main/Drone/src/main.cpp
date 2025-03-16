@@ -8,11 +8,7 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <Streaming.h>
-
-#include <Wire.h>
-
-#define SCREEN_WIDTH 128  // OLED display width, in pixels
-#define SCREEN_HEIGHT 64  // OLED display height, in pixels
+#include <ESP32Servo.h>
 
 
 // REPLACE WITH THE MAC Address of your receiver 
@@ -26,6 +22,9 @@ uint8_t broadcastAddress[] = {0x88, 0x13, 0xbf, 0xc8, 0x57, 0x9c};
 String success;
 
 //Structure example to send data
+
+Servo neServo;
+
 //Must match the receiver structure
 struct Vec4{
   float NW,NE,SE,SW;
@@ -103,8 +102,8 @@ void Motor(float magnitude, float angle){
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
- 
-  
+  ESP32PWM::allocateTimer(0);
+
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
@@ -139,7 +138,14 @@ void loop() {
   //Serial.print("\t");
   //Serial.println(incomingReadings.Pot);  
   
-
+  if (!neServo.attached()) {
+		neServo.setPeriodHertz(50); // standard 50 hz servo
+		neServo.attach(33, 1000, 2000); // Attach the servo after it has been detatched
+	}
+	//neServo.write(0);
+  //delay(1000);
+  analogWrite(33, 150);
+  neServo.write(150);
 
   //Convert X and Y into angle
     //Disable Joystick if Centered
