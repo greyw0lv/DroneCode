@@ -28,6 +28,9 @@ threeAxis filtered_Accel;
 void setup() {
   Serial.begin(9600);
 
+  pinMode(A6,OUTPUT);
+  pinMode(A7,OUTPUT);
+
   ax.begin(FREQUENCY, MINCUTOFF, BETA);
   ay.begin(FREQUENCY, MINCUTOFF, BETA);
   az.begin(FREQUENCY, MINCUTOFF, BETA);
@@ -71,6 +74,8 @@ void loop() {
 
   Serial << "Roll:" << curRoll << "Yaw:" << curYaw << endl;
   
+  analogWrite(A6, map(curRoll,-90,90,0,255));
+  analogWrite(A7, map(curYaw,-90,90,0,255));
 
   delay(50);
 }

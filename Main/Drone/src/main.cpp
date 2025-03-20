@@ -6,9 +6,10 @@
 */
 #include "Arduino.h"
 #include <esp_now.h>
-#include <WiFi.h>
+#include <WiFi.h> //dunno if this one needs to be here.
 #include <Streaming.h>
 #include <ESP32Servo.h>
+
 
 
 // REPLACE WITH THE MAC Address of your receiver 
@@ -26,12 +27,11 @@ String success;
 Servo neServo;
 
 //Must match the receiver structure
-struct Vec4{
-  float NW,NE,SE,SW;
-};
+
 
 const float BASELINE = 0.5;
-Vec4 motorPower;
+float motorPower[4] = {BASELINE,BASELINE,BASELINE,BASELINE};
+
 
 struct Vec2{
   float x,y;
@@ -71,32 +71,22 @@ float radiansFromPosition(Vec2 v){
   return theta;
 }
 
-void Motor(float magnitude, float angle){
-  //angle from -0.5radian to +0.5 radian
-  motorPower.NE = BASELINE;
-  motorPower.NW = BASELINE;
-  motorPower.SE = BASELINE;
-  motorPower.SW = BASELINE;
+//-------KEY------//
+//   NW NE | 1 0  //
+//   SW SE | 2 3  //
+//----------------//
+void droneHover(){
+  Serial.println("Hovering");
+}
+void droneForward(bool isForward){
+  Serial.println("Forwarding");
+}
+void droneStrafe(bool isLeft){
+  Serial.println("Lefting");
+}
 
-  if (angle < -0.25) {
-    Serial.println("SouthEast");
-    motorPower.SE = motorPower.SE + ((1 - motorPower.SE)*magnitude);
-  } else if(angle < 0.0) {
-    Serial.println("SouthWest");
-    motorPower.SW = motorPower.SW + ((1 - motorPower.SW)*magnitude);
-  } else if(angle < 0.25){
-    Serial.println("NorthWest");
-    motorPower.NW = motorPower.NW + ((1 - motorPower.NW)*magnitude);
-  } else {
-    Serial.println("NorthEast");
-    motorPower.NE = motorPower.NE + ((1 - motorPower.NE)*magnitude);
-  }
-  
-  analogWrite (13,map(motorPower.SE, 0 , 1, 0, 255));
-  analogWrite (12,map(motorPower.SW, 0 , 1, 0, 255));
-  analogWrite (14,map(motorPower.NW, 0 , 1, 0, 255));
-  analogWrite (27,map(motorPower.NE, 0 , 1, 0, 255));
-  Serial << "NW:" << motorPower.NW << "\tNE:" << motorPower.NE << "\nSW:" << motorPower.SW << "\tSE" << motorPower.SE << "\n" << endl;
+void updateDrone(){
+
 }
 
 void setup() {
@@ -132,34 +122,18 @@ void setup() {
 }
  
 void loop() {
-  //Serial.print(incomingReadings.Joy.x);
-  //Serial.print("\t");
-  //Serial.print(incomingReadings.Joy.y);
-  //Serial.print("\t");
-  //Serial.println(incomingReadings.Pot);  
-  
-  if (!neServo.attached()) {
-		neServo.setPeriodHertz(50); // standard 50 hz servo
-		neServo.attach(33, 1000, 2000); // Attach the servo after it has been detatched
-	}
-	//neServo.write(0);
-  //delay(1000);
-  analogWrite(33, 150);
-  neServo.write(150);
-
-  //Convert X and Y into angle
-    //Disable Joystick if Centered
-    
+  //Get User Intent
   float theta = radiansFromPosition(incomingReadings.Joy);
   Serial.println(theta);
-  //Scale by Potentiometer
-
-  ///@loOK HERE
   incomingReadings.Pot = 1.0;//DELETE THIS  
 
-  if (abs(incomingReadings.Joy.x) > 100 || abs(incomingReadings.Joy.y) > 100){
-    Motor(incomingReadings.Pot,theta);
-  }
-  //Given Angle and Magnitude drive motors
+  //Get Signals
+  float curRoll= analogRead(32);
+  float curYaw = analogRead(33);
+
+  //Updated Intent
+  updateDrone();
+
+
   delay(500);
 }
