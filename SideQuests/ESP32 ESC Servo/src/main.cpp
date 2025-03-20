@@ -25,21 +25,23 @@ void setup()
   pinMode(servoPin[2], OUTPUT);
   pinMode(servoPin[3], OUTPUT);
 
-  ESC0.attach(servoPin[0], 1000, 2000);   // attaches the servo in the servo object
-  ESC1.attach(servoPin[1], 1000, 2000);   // attaches the servo in the servo object
-  ESC2.attach(servoPin[2], 1000, 2000);   // attaches the servo in the servo object
-  ESC3.attach(servoPin[3], 1000, 2000);   // attaches the servo in the servo object
+  ESC0.attach(servoPin[0], 200, 2000);   // attaches the servo in the servo object
+  ESC1.attach(servoPin[1], 200, 2000);   // attaches the servo in the servo object
+  ESC2.attach(servoPin[2], 200, 2000);   // attaches the servo in the servo object
+  ESC3.attach(servoPin[3], 200, 2000);   // attaches the servo in the servo object
 
 }
 
 void loop() {
   //val = analogRead(potPin);         
   //Serial.println(val);   // read the value of the potentiometer (value between 0 and 1023)
-  //val = map(val, 0, ADC_Max, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
-  ESC1.write(10);                  // set the servo position according to the scaled value
-  ESC0.write(10);
-  ESC2.write(20);
-  ESC3.write(20);
+  int val = analogRead(35);
+  val = map(val, 0, ADC_Max, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
+  Serial.println(val);
+  ESC1.write(val);                  // set the servo position according to the scaled value
+  ESC0.write(val);
+  ESC2.write(val);
+  ESC3.write(val);
   Serial << ESC0.read() << "\t" <<  ESC1.read() << "\t" << ESC2.read() << "\t" <<  ESC3.read() << endl;
 
   //delay(500);                          // wait for the servo to get there
