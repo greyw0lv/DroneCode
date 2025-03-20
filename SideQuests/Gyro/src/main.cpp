@@ -28,6 +28,9 @@ threeAxis filtered_Accel;
 void setup() {
   Serial.begin(9600);
 
+  pinMode(A6,OUTPUT);
+  pinMode(A7,OUTPUT);
+
   ax.begin(FREQUENCY, MINCUTOFF, BETA);
   ay.begin(FREQUENCY, MINCUTOFF, BETA);
   az.begin(FREQUENCY, MINCUTOFF, BETA);
