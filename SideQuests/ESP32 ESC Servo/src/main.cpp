@@ -7,7 +7,7 @@ Servo ESC2;
 Servo ESC3;
 
 
-
+/// Warn : should be pin 25, using pin 26 rn just to see if we need DAC or if digital out is enough.
 int servoPin[] = {13, 12, 14, 26};      // GPIO pin used to connect the servo control (digital out)
 
 int potPin = 34;        // GPIO pin used to connect the potentiometer (analog in)
