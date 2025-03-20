@@ -127,6 +127,10 @@ void loop() {
   Serial.println(theta);
   incomingReadings.Pot = 1.0;//DELETE THIS  
 
+  //Get Signals
+  float curRoll= analogRead(32);
+  float curYaw = analogRead(33);
+
   //Updated Intent
   updateDrone();
 
