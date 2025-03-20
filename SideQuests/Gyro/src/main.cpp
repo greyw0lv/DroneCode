@@ -71,6 +71,8 @@ void loop() {
 
   Serial << "Roll:" << curRoll << "Yaw:" << curYaw << endl;
   
+  analogWrite(A6, map(curRoll,-90,90,0,255));
+  analogWrite(A7, map(curYaw,-90,90,0,255));
 
   delay(50);
 }
