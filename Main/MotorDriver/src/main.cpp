@@ -84,10 +84,11 @@ void loop() {
 //Random Sensors GO!!!!
   NeoPixel(150,150,10);
   
-  distance_cm = mySensor.distance();
+  distance_cm = mySensor.getDistance();
   Serial.print("Mean Dist (cm): ");
   Serial.println(distance_cm);
-  light = mySensor.light();
+  //light = mySensor.light(); :)
+  light = analogRead(A1);
   Serial.print("lightlvl: ");
   Serial.println(light);
 
