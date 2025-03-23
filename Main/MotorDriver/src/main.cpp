@@ -97,6 +97,7 @@ void loop() {
   ESC2.write(ESC[2]); 
   ESC3.write(ESC[3]); 
   
+  Serial.print("ESC:");
   for (int i = 0; i < 4; i++)
   {
     Serial.print(ESC[i]);
