@@ -13,7 +13,8 @@
 
 
 // REPLACE WITH THE MAC Address of your receiver 
-uint8_t broadcastAddress[] = {0x88, 0x13, 0xbf, 0xc8, 0x57, 0x9c};
+//88:13:bf:c8:54:64
+uint8_t broadcastAddress[] = {0x88, 0x13, 0xbf, 0xc8, 0x54, 0x64};
 
 // Define variables to store Remote readings to be sent
 

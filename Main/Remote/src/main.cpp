@@ -20,7 +20,8 @@ int PIN_P = 33;
 int xPos, yPos = 0;
 
 // REPLACE WITH THE MAC Address of your receiver 
-uint8_t broadcastAddress[] = {0xa0, 0xb7, 0x65, 0x24, 0x91, 0x44};
+//88:13:bf:c8:57:9c
+uint8_t broadcastAddress[] = {0x88, 0x13, 0xbf, 0xc8, 0x57, 0x9c};
 
 // Variable to store if sending data was successful
 String success;
