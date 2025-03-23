@@ -50,7 +50,7 @@ void NeoPixel(int r, int g, int b){
 
 void setup() {
   // Attach the ESC on pin 9
-  Serial.begin(9600);
+  Serial.begin(115200);
   espSerial.begin(9600);
 
   // (pin, min pulse width, max pulse width in microseconds) 
@@ -92,19 +92,18 @@ void loop() {
   Serial.print("lightlvl: ");
   Serial.println(light);
 
+  for (int i = 0; i < 4; i++)
+  {
+    ESC[i] = map(ESC[i],0,100,0,180);
+  }
+  
+
+
   //Back to motor stuff.
   ESC0.write(ESC[0]);    // Send the signal to the ESC
   ESC1.write(ESC[1]); 
   ESC2.write(ESC[2]); 
   ESC3.write(ESC[3]); 
-  
-  Serial.print("ESC:");
-  for (int i = 0; i < 4; i++)
-  {
-    Serial.print(ESC[i]);
-    Serial.print('\t');
-  }
-  Serial.println();
   
   delay(500);
   //Serial.print(ESC.attached(6));

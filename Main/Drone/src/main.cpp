@@ -8,7 +8,6 @@
 #include <esp_now.h>
 #include <WiFi.h> //dunno if this one needs to be here.
 #include <Streaming.h>
-#include <ESP32Servo.h>
 
 
 
@@ -25,7 +24,6 @@ String success;
 
 //Structure example to send data
 
-Servo neServo;
 
 //Must match the receiver structure
 
@@ -75,37 +73,41 @@ float radiansFromPosition(Vec4 v){
   return theta;
 }
 
+float mapfloat(float x, float in_min, float in_max, float out_min, float out_max){
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 //-------KEY------//
 //   NW NE | 1 0  //
 //   SW SE | 2 3  //
 //----------------//
 void droneForward(){
   Serial.println("Forwarding");
-  float normYAW = map(curYaw,-90,90,-1,1);
+  
+  float normYAW = mapfloat(curYaw,-90,90,-1,1);
   //Front
   for (int i = 0; i < 2; i++)
   {
-    ESC[i] = ESC[i] + (2*(normYAW - (incomingReadings.Joy.y/10)));//10% duty +- 2%, ofset by joystick by 10deg
+    ESC[i] = ESC[i] + (2*(normYAW - (incomingReadings.Joy.x)));//10% duty +- 2%, ofset by joystick by 10deg
   }
   //Back
   for (int i = 2; i < 4; i++)
   {
-    ESC[i] = ESC[i] - (2*(normYAW - (incomingReadings.Joy.y/10)));//10% duty
+    ESC[i] = ESC[i] - (2*(normYAW - (incomingReadings.Joy.x)));//10% duty
   }
 
 }
 void droneStrafe(){
   Serial.println("Lefting");
-  float normRoll = map(curRoll,-90,90,-1,1);
+  float normRoll = mapfloat(curRoll,-90,90,-1,1);
   //Side
   for (int i = 0; i < 4; i++)
   {
-    if (i > 0 && i < 4)
-    {//Left
-      ESC[i] = ESC[i] + (2*(normRoll - (incomingReadings.Joy.y/10)));//10% duty
+    if (i > 0 && i < 3)
+    {//Left //1,2
+      ESC[i] = ESC[i] + (2*(normRoll - (incomingReadings.Joy.y)));//10% duty
     } else
-    {//Right
-      ESC[i] = ESC[i] - (2*(normRoll - (incomingReadings.Joy.y/10)));//10% duty
+    {//Right // 0,3
+      ESC[i] = ESC[i] - (2*(normRoll - (incomingReadings.Joy.y)));//10% duty
     }
 
   }
@@ -129,14 +131,14 @@ void droneTwist(){
 void droneAmplify(){
   for (int i = 0; i < 4; i++)
   {
-    ESC[i] * incomingReadings.Pot;
+    ESC[i] = ESC[i] *2* incomingReadings.Pot;
   }
   
 }
 void droneReset(){
   for (int i = 0; i < 4; i++)
   {
-    ESC[i] = 10;//10% duty
+    ESC[i] = 50;//10% duty
   }
 }
 
@@ -156,7 +158,6 @@ void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
   Serial2.begin(9600,SERIAL_8N1,16,17);
-  ESP32PWM::allocateTimer(0);
 
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);

@@ -14,13 +14,15 @@ TODO: potentiometer, as float
 */
 
 
-int PIN_X = 34;
-int PIN_Y = 35;
-int PIN_P = 33;
-int PIN_Z = 25;
-int PIN_R = 26;
+int PIN_X = 32;
+int PIN_Y = 33;
+int PIN_P = 36;
+int PIN_Z = 34;
+int PIN_R = 35;
 
 int xPos, yPos = 0;
+
+
 
 // REPLACE WITH THE MAC Address of your receiver 
 //88:13:bf:c8:57:9c
@@ -84,7 +86,7 @@ double getPot(int PinOut){
   int Axis = analogRead(PinOut);// Raw value from gpio
   
   if (abs(Axis) > deadzone){
-    power = map(Axis,0, 4095, 0.00, 1.00);
+    power = map(Axis*100000.0,0, 4095, 0.00, 1.00)/100000.0;
   }
   return power;
 }
@@ -103,7 +105,7 @@ void getReadings(){
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
- 
+  pinMode(PIN_P, INPUT);
   // Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
@@ -135,10 +137,12 @@ void loop() {
 
   Serial << "JoystickRAW\t X:" << analogRead(PIN_X) << "\tY:" << analogRead(PIN_Y) << endl;
   Serial << "JoystickClean\t X:" << RemoteReadings.Joy.x << "\tY:" << RemoteReadings.Joy.y << endl;
-
+  Serial << "JoystickRAW\t Z:" << analogRead(PIN_Z) << "\tR:" << analogRead(PIN_R) << endl;
+  Serial << "JoystickClean\t Z:" << RemoteReadings.Joy.z << "\tR:" << RemoteReadings.Joy.z << endl;
+  Serial << "Pot:" << RemoteReadings.Pot << "\n" << endl; 
   // Send message via ESP-NOW
   esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &RemoteReadings, sizeof(RemoteReadings));
-   
+
   if (result == ESP_OK) {
     Serial.println("Sent with success");
   }
