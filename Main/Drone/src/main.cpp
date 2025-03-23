@@ -33,13 +33,16 @@ Servo neServo;
 const float BASELINE = 0.5;
 float motorPower[4] = {BASELINE,BASELINE,BASELINE,BASELINE};
 
+float curRoll;
+float curYaw;
+float ESC[4] = {0};
 
-struct Vec2{
-  float x,y;
+struct Vec4{
+  float x,y,z,r;
 };
 
 struct struct_message {
-  Vec2 Joy;
+  Vec4 Joy;
   double Pot;
 };
 
@@ -67,7 +70,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(len);
 }
  
-float radiansFromPosition(Vec2 v){
+float radiansFromPosition(Vec4 v){
   float theta = atan2(v.x, v.y) /(2*3.1415);
   return theta;
 }
@@ -76,17 +79,76 @@ float radiansFromPosition(Vec2 v){
 //   NW NE | 1 0  //
 //   SW SE | 2 3  //
 //----------------//
-void droneHover(){
-  Serial.println("Hovering");
-}
-void droneForward(bool isForward){
+void droneForward(){
   Serial.println("Forwarding");
+  float normYAW = map(curYaw,-90,90,-1,1);
+  //Front
+  for (int i = 0; i < 2; i++)
+  {
+    ESC[i] = ESC[i] + (2*(normYAW - (incomingReadings.Joy.y/10)));//10% duty +- 2%, ofset by joystick by 10deg
+  }
+  //Back
+  for (int i = 2; i < 4; i++)
+  {
+    ESC[i] = ESC[i] - (2*(normYAW - (incomingReadings.Joy.y/10)));//10% duty
+  }
+
 }
-void droneStrafe(bool isLeft){
+void droneStrafe(){
   Serial.println("Lefting");
+  float normRoll = map(curRoll,-90,90,-1,1);
+  //Side
+  for (int i = 0; i < 4; i++)
+  {
+    if (i > 0 && i < 4)
+    {//Left
+      ESC[i] = ESC[i] + (2*(normRoll - (incomingReadings.Joy.y/10)));//10% duty
+    } else
+    {//Right
+      ESC[i] = ESC[i] - (2*(normRoll - (incomingReadings.Joy.y/10)));//10% duty
+    }
+
+  }
+}
+void droneTwist(){
+  Serial.println("Twisting");
+  //Twist
+  for (int i = 0; i < 4; i++)
+  {
+    if (i % 2)
+    {//0,2
+      ESC[i] = ESC[i] + ((incomingReadings.Joy.r/50));//10% duty
+    } else
+    {//1,3
+      ESC[i] = ESC[i] - ((incomingReadings.Joy.r/50));//10% duty
+    }
+
+  }
 }
 
-void updateDrone(){
+void droneAmplify(){
+  for (int i = 0; i < 4; i++)
+  {
+    ESC[i] * incomingReadings.Pot;
+  }
+  
+}
+void droneReset(){
+  for (int i = 0; i < 4; i++)
+  {
+    ESC[i] = 10;//10% duty
+  }
+}
+
+void updateMotor(){
+
+  droneReset();
+  droneForward();
+  droneStrafe();
+  droneTwist();
+  droneAmplify();
+  
+
 
 }
 
@@ -124,7 +186,10 @@ void setup() {
 }
  
 void loop() {
-  //Get Serial Data
+
+  //Get Signals
+  //Done
+  //Get Serial Data || NANO
   byte buffer[8]; // Buffer to store incoming bytes
   if (Serial2.readBytes(buffer, 8) == 8) { // Wait for 8 bytes
     float* received = (float*)buffer; // Cast bytes to float array
@@ -132,29 +197,24 @@ void loop() {
     //Serial.print(temp[0]);
     //Serial.print("\t");
     //Serial.println(temp[1]);
+    curRoll= received[0];
+    curYaw = received[1];
     Serial.printf("Received: %.2f, %.2f,\n", 
                   received[0], received[1]);
   }
-
-
-  //Get User Intent
+  
+  //Get User Intent || ESP REMOTE
   //float theta = radiansFromPosition(incomingReadings.Joy);
   //Serial.println(theta);
   //incomingReadings.Pot = 1.0;//DELETE THIS  
-
-  //Get Signals
-  //float curRoll= analogRead(32);
-  //float curYaw = analogRead(33);
-
+  
   //Updated Intent
-  //updateDrone(); //Moved to UNO
-  float ESC1 = 2.0;
-  float ESC2 = 5.0;
-  float ESC3 = 7.0;
-  float ESC4 = 9.0;
+  updateMotor();
+  
+  Serial.printf("Received: %.2f, %.2f,%.2f, %.2f\n", 
+    ESC[0], ESC[1],ESC[2],ESC[3]);
 
-
-  float results[4] = {ESC1, ESC2, ESC3, ESC4};
+  float results[4] = {ESC[0],ESC[1],ESC[2],ESC[3]};
   Serial2.write((byte*)results, sizeof(results)); // Send raw bytes
 
 

@@ -17,6 +17,9 @@ TODO: potentiometer, as float
 int PIN_X = 34;
 int PIN_Y = 35;
 int PIN_P = 33;
+int PIN_Z = 25;
+int PIN_R = 26;
+
 int xPos, yPos = 0;
 
 // REPLACE WITH THE MAC Address of your receiver 
@@ -28,12 +31,12 @@ String success;
 
 //Structure example to send data
 //Must match the receiver structure
-struct Vec2{
-  float x,y;
+struct Vec4{
+  float x,y,z,r;
 };
 
 struct struct_message {
-    Vec2 Joy;
+    Vec4 Joy;
     double Pot;
 };
 
@@ -91,6 +94,8 @@ void getReadings(){
   // Set values to send
   RemoteReadings.Joy.x = getJoy(PIN_X);
   RemoteReadings.Joy.y = getJoy(PIN_Y);
+  RemoteReadings.Joy.z = getJoy(PIN_Z);
+  RemoteReadings.Joy.r = getJoy(PIN_R);
   RemoteReadings.Pot = getPot(PIN_P);
 }
 

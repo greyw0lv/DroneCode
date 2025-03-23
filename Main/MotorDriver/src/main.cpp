@@ -2,10 +2,11 @@
 #include <SoftwareSerial.h>
 #include <Servo.h>
 
-Servo ESC1;     // create servo object to control the ESC
-Servo ESC2;
-Servo ESC3;
-Servo ESC4;
+Servo ESC0;    //Front Right 1, 0
+Servo ESC1;    //Front Left 2, 1
+Servo ESC3;   //Back Right 3, 3
+Servo ESC2;    //Back left 4, 2
+float ESC[4] = {0};
 
 SoftwareSerial espSerial(8, 9);
 
@@ -18,10 +19,10 @@ void setup() {
 
   // (pin, min pulse width, max pulse width in microseconds) 
 
-  ESC1.attach(11,200,2000); // not working, check wiring
-  ESC2.attach(10,200,2000); // working
+  ESC0.attach(11,200,2000); // not working, check wiring
+  ESC1.attach(10,200,2000); // workings
   ESC3.attach(5,200,2000); // working
-  ESC4.attach(6,200,2000);// working
+  ESC2.attach(6,200,2000);// working
   Serial.println("Ending Setup");
 }
 
@@ -31,10 +32,10 @@ void loop() {
   byte buffer[16]; // 4 floats = 16 bytes
   if (espSerial.readBytes(buffer, 16) == 16) {
     float* receivedFloats = (float*)buffer;
-
     // Step 2: Print received floats
     Serial.print("Received from ESP32: ");
     for (int i = 0; i < 4; i++) {
+      ESC[i] = receivedFloats[i];
       Serial.print(receivedFloats[i]);
       Serial.print("\t");
     }
@@ -42,14 +43,21 @@ void loop() {
   }
   Serial.println("Ending loop");
   delay(500);
-  /*
-  potValue = analogRead(A0);   // reads the value of the potentiometer (value between 0 and 1023)
-  potValue = map(potValue, 0, 1023, 0, 180);   // scale it to use it with the servo library (value between 0 and 180)
-  ESC1.write(potValue);    // Send the signal to the ESC
-  ESC2.write(potValue); 
-  ESC3.write(potValue); 
-  ESC4.write(potValue); 
-  Serial.println(potValue);
+  
+  
+  ESC0.write(ESC[0]);    // Send the signal to the ESC
+  ESC1.write(ESC[1]); 
+  ESC2.write(ESC[2]); 
+  ESC3.write(ESC[3]); 
+  
+  for (int i = 0; i < 4; i++)
+  {
+    Serial.print(ESC[i]);
+    Serial.print('\t');
+  }
+  Serial.println();
+  
+
   //Serial.print(ESC.attached(6));
-*/
+
 }
