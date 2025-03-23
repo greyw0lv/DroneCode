@@ -92,6 +92,7 @@ void updateDrone(){
 void setup() {
   // Init Serial Monitor
   Serial.begin(115200);
+  Serial2.begin(9600,SERIAL_8N1,16,17);
   ESP32PWM::allocateTimer(0);
 
   // Set device as a Wi-Fi Station
@@ -122,17 +123,39 @@ void setup() {
 }
  
 void loop() {
+  //Get Serial Data
+  byte buffer[8]; // Buffer to store incoming bytes
+  if (Serial2.readBytes(buffer, 8) == 8) { // Wait for 8 bytes
+    float* received = (float*)buffer; // Cast bytes to float array
+    //int* temp = (int*)buffer;
+    //Serial.print(temp[0]);
+    //Serial.print("\t");
+    //Serial.println(temp[1]);
+    Serial.printf("Received: %.2f, %.2f,\n", 
+                  received[0], received[1]);
+  }
+
+
   //Get User Intent
-  float theta = radiansFromPosition(incomingReadings.Joy);
-  Serial.println(theta);
-  incomingReadings.Pot = 1.0;//DELETE THIS  
+  //float theta = radiansFromPosition(incomingReadings.Joy);
+  //Serial.println(theta);
+  //incomingReadings.Pot = 1.0;//DELETE THIS  
 
   //Get Signals
-  float curRoll= analogRead(32);
-  float curYaw = analogRead(33);
+  //float curRoll= analogRead(32);
+  //float curYaw = analogRead(33);
 
   //Updated Intent
-  updateDrone();
+  //updateDrone(); //Moved to UNO
+  float ESC1 = 2.0;
+  float ESC2 = 5.0;
+  float ESC3 = 7.0;
+  float ESC4 = 9.0;
+
+
+  float results[4] = {ESC1, ESC2, ESC3, ESC4};
+  Serial2.write((byte*)results, sizeof(results)); // Send raw bytes
+
 
 
   delay(500);

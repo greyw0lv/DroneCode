@@ -27,6 +27,7 @@ threeAxis filtered_Accel;
 
 void setup() {
   Serial.begin(9600);
+  Serial1.begin(9600);
 
   pinMode(A6,OUTPUT);
   pinMode(A7,OUTPUT);
@@ -66,16 +67,26 @@ void loop() {
   }
 
 
-  Serial << "Accel:" <<"\tX:"<< Accel.x <<"\tY:"<< Accel.y <<"\tZ:"<< Accel.z <<endl;
+  //Serial << "Accel:" <<"\tX:"<< Accel.x <<"\tY:"<< Accel.y <<"\tZ:"<< Accel.z <<endl;
 
   
   float curRoll = map(filtered_Accel.x*100000.0,-1.0f,1.0f,-90.0f,90.0f)/100000.0;//dont fucky with the map
   float curYaw = map(filtered_Accel.y*100000.0,-1.0f,1.0f,-90.0f,90.0f)/100000.0;//dont fucky with the map
 
-  Serial << "Roll:" << curRoll << "Yaw:" << curYaw << endl;
-  
+  Serial << "Roll:" << curRoll << "Yaw:" << curYaw << "\n" << endl;
+  /* removed in favor of serial
   analogWrite(A6, map(curRoll,-90,90,0,255));
   analogWrite(A7, map(curYaw,-90,90,0,255));
+  */
 
-  delay(50);
+  //Send over serial
+  float data[2] = {curRoll, curYaw};
+  int* temp = (int*)data;
+  Serial.print(temp[0]);
+  Serial.print("\t");
+  Serial.println(temp[1]);
+  Serial1.write((byte*)data, sizeof(data));
+
+
+  delay(500);
 }
